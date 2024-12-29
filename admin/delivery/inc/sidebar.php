@@ -38,17 +38,47 @@ if (session_status() == PHP_SESSION_NONE) {
         <!-- Delivery -->
         <li class="nav-item">
           <a href="all_orders.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'all_orders.php' ? 'active' : ''; ?>">
-          <i class="nav-icon fas fa-list"></i>
+            <i class="nav-icon fas fa-list"></i>
             <p>
               All order
             </p>
           </a>
         </li>
 
+        <!-- Manage Delivery Boy -->
+        <li class="nav-item <?php
+                            $currentPage = basename($_SERVER['PHP_SELF']);
+                            echo ($currentPage == 'add_delivery.php' || $currentPage == 'all_delivery.php') ? 'menu-open' : '';
+                            ?>">
+          <a href="" class="nav-link <?php
+                                      $currentPage = basename($_SERVER['PHP_SELF']);
+                                      echo ($currentPage == 'add_delivery.php' || $currentPage == 'all_delivery.php') ? 'active' : '';
+                                      ?>">
+            <i class="nav-icon fas fa-shipping-fast"></i>
+            <p>
+              Manage Delivery Boy
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="add_delivery.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'add_delivery.php' ? 'active' : ''; ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Add Delivery Boy</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="all_delivery.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'all_delivery.php' ? 'active' : ''; ?>">
+                <i class="far fa-circle nav-icon"></i>
+                <p>All Delivery Boy</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+
         <!-- COD History -->
         <!-- <li class="nav-item">
           <a href="cod_history.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'cod_history.php' ? 'active' : ''; ?>">
-            <i class="nav-icon fas fa-shipping-fast"></i>
             <i class="nav-icon fas fa-wallet"></i>
             <p>
               COD History

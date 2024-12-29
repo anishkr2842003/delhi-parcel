@@ -13,7 +13,7 @@ if (isset($_POST['login'])) {
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
     // First, check if the user exists and the status is true
-    $query = "SELECT * FROM seller WHERE login_email = '$email' AND type = 'Delivery Panel'";
+    $query = "SELECT * FROM seller WHERE email = '$email' AND type = 'Delivery Panel'";
     $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) == 1) {
@@ -24,7 +24,7 @@ if (isset($_POST['login'])) {
             if ($row['login_password'] == $password) {
                 // var_dump($row);
                 // die();
-                $_SESSION['delivery_email'] = $row['login_email'];
+                $_SESSION['delivery_email'] = $row['email'];
                 $_SESSION['delivery_id'] = $row['id'];
                 $_SESSION['delivery_name'] = $row['fullName'];
                 header("Location: dashboard.php");

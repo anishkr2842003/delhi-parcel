@@ -5,7 +5,8 @@ include("../config.php");
 // change order satus
 
 if (isset($_POST['action']) && $_POST['action'] == 'changeOrderStatus') {
-    $orderId = $_POST['orderIdedit'];
+
+    $orderId = $_POST['orderIdedit2'];
     $orderStatus = $_POST['orderStatus'];
     $status_message = isset($_POST['messageedit']) ? $_POST['messageedit'] : '';
 
@@ -45,5 +46,60 @@ if (isset($_POST['action']) && $_POST['action'] == 'changeOrderStatus') {
 }
 
 
+//----------------------------------------------------------------------------------//	
+//                               DELIVERY BOY SECTION                                   //
+//----------------------------------------------------------------------------------//
+// add Delivery
+if (isset($_POST['action']) && $_POST['action'] == 'adddelivery') {
+    $fullName = $_POST['fullName'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $fullAddress = $_POST['fullAddress'];
+    $pinCode = $_POST['pinCode'];
+    $password = $_POST['password'];
+    $added_by = $_POST['delivery_id'];
 
+    $sql = "INSERT INTO delivery (name, email, mobile, address, pincode, added_by, password) VALUES ('$fullName','$email','$phone', '$fullAddress', '$pinCode', '$added_by', '$password')";
 
+    if (mysqli_query($conn, $sql)) {
+        echo json_encode(array('status' => 'success', 'message' => 'Delivery added successfully'));
+    } else {
+        echo json_encode(array('status' => 'error', 'message' => 'Error in adding delivery : ' . $conn->error));
+    }
+    exit;
+}
+
+// update delivery status
+if (isset($_POST['action']) && $_POST['action'] == 'updateDeliveryStatus') {
+    $id = $_POST['id'];
+    $status = $_POST['status'];
+
+    $sql = "UPDATE delivery SET status = $status WHERE id = $id";
+
+    if (mysqli_query($conn, $sql)) {
+        echo json_encode(array('status' => 'success', 'message' => 'Delivery updated successfully'));
+    } else {
+        echo json_encode(array('status' => 'error', 'message' => 'Error updating delivery : ' . $conn->error));
+    }
+    exit;
+}
+
+// update seller login email and password
+if (isset($_POST['action']) && $_POST['action'] == 'updateDelivery') {
+    $loginId = $_POST['loginId'];
+    $editName = $_POST['editName'];
+    $loginEmail2 = $_POST['loginEmail2'];
+    $editMobile = $_POST['editMobile'];
+    $editAddress = $_POST['editAddress'];
+    $editPincode = $_POST['editPincode'];
+    $loginPassword2 = $_POST['loginPassword2'];
+
+    $sql = "UPDATE delivery SET name = '$editName', email = '$loginEmail2', mobile = '$editMobile', address = '$editAddress', pincode = '$editPincode', password = '$loginPassword2' WHERE id = $loginId";
+
+    if (mysqli_query($conn, $sql)) {
+        echo json_encode(array('status' => 'success', 'message' => 'Delivery updated successfully'));
+    } else {
+        echo json_encode(array('status' => 'error', 'message' => 'Error updating delivery details : ' . $conn->error));
+    }
+    exit;
+}

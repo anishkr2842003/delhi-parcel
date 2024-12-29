@@ -64,7 +64,7 @@ if (!isset($_SESSION['booking_email'])) {
                         <th>Sr No.</th>
                         <th>Order&nbsp;id</th>
                         <th>Invoice</th>
-                        <th>Label</th>
+                        <!-- <th>Label</th> -->
                         <th>Seller</th>
                         <th>Sender</th>
                         <th>Receiver</th>
@@ -106,7 +106,7 @@ if (!isset($_SESSION['booking_email'])) {
                           <td><?php echo $index; ?></td>
                           <td><?php echo $row['order_id']; ?></td>
                           <td><a href="invoice.php?ordId=<?php echo $row['order_id']; ?>">Invoice</a></td>
-                          <td><a href="label.php?ordId=<?php echo $row['order_id']; ?>">label</a></td>
+                          <!-- <td><a href="label.php?ordId=<?php echo $row['order_id']; ?>">label</a></td> -->
                           <td><?php echo $row['seller_id'] == 0 ? 'customer' : $row['seller_name']; ?></td>
                           <td><b>Name:</b> <?php echo $row['sender_name']; ?> <br><br><b>Email:</b> <?php echo $row['sender_email']; ?> <br><br><b>Number:</b> <?php echo $row['sender_number']; ?><br><br><b>Address:</b> <?php echo $row['sender_address']; ?> </td>
                           <td><b>Name:</b> <?php echo $row['receiver_name']; ?> <br><br><b>Email:</b> <?php echo $row['receiver_email']; ?> <br><br><b>Number:</b> <?php echo $row['receiver_number']; ?><br><br><b>Address:</b> <?php echo $row['receiver_address']; ?> </td>
@@ -274,31 +274,6 @@ if (!isset($_SESSION['booking_email'])) {
 
   <script>
     $(document).ready(function() {
-
-      // Handle delete button click
-      // $('.delete-job').on('click', function(e) {
-      //   e.preventDefault();
-      //   console.log('click');
-      //   var jobId = $(this).data('id');
-
-      //   if (confirm("Are you sure you want to delete this job?")) {
-      //     $.ajax({
-      //       url: 'api/delete_job.php?id=' + jobId,
-      //       type: 'GET',
-      //       success: function(response) {
-      //         if (response.status === "success") {
-      //           Toast('success', response.message);
-      //           location.reload();
-      //         } else {
-      //           Toast('error', response.message);
-      //         }
-      //       },
-      //       error: function(xhr, status, error) {
-      //         Toast('error', 'An error occurred');
-      //       }
-      //     });
-      //   }
-      // });
 
       $('.order_status').on('click', function() {
         const orderId = $(this).data('orderid');
