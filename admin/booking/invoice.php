@@ -1,10 +1,18 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['admin_email'])) {
+    header('Location: index.php');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcel Tracking</title>
+    <title>Tax Invoice</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,7 +41,7 @@
         }
 
         .header .logo {
-            text-align: center;
+            text-align: left;
             flex: 1;
         }
 
@@ -91,18 +99,6 @@
             .receiver,
             .parcel {
                 width: 30%;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .sender,
-            .receiver {
-                width: 50%;
-            }
-
-            .parcel {
-                width: 100%;
             }
         }
 
@@ -183,7 +179,6 @@
 </head>
 
 <body>
-    <?php include("inc/links.php") ?>
     <?php
     include("../config.php");
     if (!isset($_GET['ordId'])) {
@@ -222,13 +217,13 @@
                     <img src="../../assets/images/logo.png" alt="" height="100px">
 
                 </div>
-                <!-- <div class="info">
+                <div class="info">
                     <h1>DELHI PARCEL</h1>
                     <p>Near Police Station Bhajanpura, Delhi, 110053</p>
                     <p><b>PAN:</b> AAUFD9215E | <b>GSTIN:</b> 07AAUFD9215E1Z8</p>
                     <p><b>Tel:</b> 7678149050 | <b>email:</b> info@delhiparcel.com</p>
                 </div>
-                <div class="copy">Original Copy</div> -->
+                <div class="copy">Original Copy</div>
             </header>
 
             <section class="details">
@@ -241,7 +236,7 @@
                     <div class="parcel">
                         <p><strong>Parcel Details:</strong></p>
                         <p>Order No: <?php echo $row['order_id'] ?></p>
-                        <p>Order Status: <?php echo $row['order_status']  ?></p>
+                        <p>Invoice Date: <?php echo strtolower(date('d-M-Y')); ?></p>
                         <p>Order Date: <?php echo strtolower((new DateTime($row['created_at']))->format('d-M-Y')); ?></p>
                     </div>
                     <div class="sender">
@@ -262,18 +257,17 @@
 
             <section class="amounts">
                 <div class="summary">
-                    <!-- <p><strong>Sub Total:</strong> ₹ <?php echo number_format($sub_total, 2); ?></p>
-                    <p><strong>Add: GST(18%):</strong> ₹ <?php echo number_format($gst_amount, 2); ?></p> -->
+                    <p><strong>Sub Total:</strong> ₹ <?php echo number_format($sub_total, 2); ?></p>
+                    <p><strong>Add: GST(18%):</strong> ₹ <?php echo number_format($gst_amount, 2); ?></p>
                     <p><strong>Grand Total:</strong> ₹ <?php echo number_format($grand_total, 2); ?></p>
-                    <p><strong>Payment Mode:</strong> <?php echo $row['payment_mode'] ?></p>
                 </div>
-                <!-- <p class="amount-in-words">Amount In Words: <?php echo numberToWords(intval($grand_total)); ?> Rupees Only</p> -->
+                <p class="amount-in-words">Amount In Words: <?php echo numberToWords(intval($grand_total)); ?> Rupees Only</p>
             </section>
 
-            <!-- <section class="footer">
-                <div class="bank-details">
+            <section class="footer">
+                <!-- <div class="bank-details">
                 <p><strong>Bank Details:</strong> HDFC Bank | A/c No.: 50200081058670 | IFSC Code: HDFC0001981</p>
-            </div>
+            </div> -->
                 <div class="terms">
                     <p><b>Terms & Conditions</b></p>
                     <p>I/We declare that this consignment does not contain personal mail, cash, jewellery, contraband, illegal drugs, any prohibited items and commodities which can cause safety hazards while transporting.</p>
@@ -283,64 +277,14 @@
                     <p>This is a computer generated invoice no signature required</p>
                     <p><strong>Authorised Signatory</strong></p>
                 </div>
-            </section> -->
+            </section>
         </div>
         <div>
             <!-- <button type="button" class="btn btn-primary" onclick="printDiv('printableArea')" id="print_btn"><i class="fa fa-print noPrint"></i> Print</button> -->
-            <button type="button" class="btn btn-primary order_status" data-toggle="modal" data-target="#modal-default" data-orderid=<?php echo $row['order_id'] ?>>
-                <i class="fas fa-marker"></i></i> Update Status
+            <button type="button" class="btn btn-primary" onclick="printDiv('printableArea')" id="print_btn">
+                <i class="fa fa-print noPrint"></i> Print
             </button>
         </div>
-    </div>
-
-    <!-- modal -->
-    <div class="modal fade" id="modal-default">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Order Status</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="statusForm">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="orderIdedit">Order id</label>
-                                <input type="text" class="form-control" id="orderIdedit" name="orderIdedit" placeholder="Enter Message">
-                            </div>
-                            <div class="form-group">
-                                <label for="orderStatus">Select Order Status</label>
-                                <select class="custom-select rounded-0" id="orderStatus" name="orderStatus">
-                                    <option selected disabled> Chooese order status</option>
-                                    <option value="Item Picked Up">Item Picked Up</option>
-                                    <option value="Returned">Returned</option>
-                                    <option value="In Transist">In Transist</option>
-                                    <option value="Arrived at Destination">Arrived at Destination</option>
-                                    <option value="Out of Delivery">Out of Delivery</option>
-                                    <option value="Delivered">Delivered</option>
-                                    <option value="Not Delivered">Not Delivered</option>
-                                    <option value="Returing to Origin">Returing to Origin</option>
-                                    <option value="Out of Delivery to Origin">Out of Delivery to Origin</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="messageedit">Message</label>
-                                <input type="text" class="form-control" id="messageedit" name="messageedit" placeholder="Enter Message">
-                            </div>
-                        </div>
-                        <!-- /.card-body -->
-
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-primary">Update Order Status</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
     </div>
 
 
@@ -358,70 +302,6 @@
             document.body.innerHTML = originalContents;
 
         }
-    </script>
-
-    <script>
-        $(document).ready(function() {
-
-            $('.order_status').on('click', function() {
-                const orderId = $(this).data('orderid');
-
-                $('#orderIdedit').val(orderId);
-                $('#modal-default').modal('show');
-            });
-
-            // update job
-            $('#statusForm').on('submit', function(event) {
-                event.preventDefault();
-                // console.log('hello')
-
-                if (!($('#orderIdedit').val())) {
-                    Toast('error', 'Id is required');
-                    return;
-                }
-
-                if (!($('#orderStatus').val())) {
-                    Toast('error', 'Order Status is required');
-                    return;
-                }
-
-                // if(!($('#messageedit').val())){
-                //   Toast('error', 'Message is required');
-                //   return;
-                // }
-
-                const formData = new FormData(this);
-                formData.append('action', 'changeOrderStatus')
-
-                // formData.forEach((value, key) => {
-                //   console.log(key, value);
-                // });
-
-                // Send the form data via AJAX
-                $.ajax({
-                    url: 'query.php',
-                    type: 'POST',
-                    processData: false,
-                    contentType: false,
-                    data: formData,
-                    success: function(response) {
-                        // console.log(response)
-                        var res = JSON.parse(response);
-                        if (res.status == 'success') {
-                            Toast('success', res.message);
-                            $('#modal-default').modal('hide');
-                            location.reload();
-                        } else {
-                            Toast('error', res.message)
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error:', error);
-                        alert('An error occurred while updating the job.');
-                    }
-                });
-            });
-        });
     </script>
 </body>
 

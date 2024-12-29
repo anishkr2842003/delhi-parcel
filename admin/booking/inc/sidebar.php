@@ -25,12 +25,22 @@ if (session_status() == PHP_SESSION_NONE) {
           </a>
         </li>
 
-        <!-- Pickup -->
+        <!-- Delivery -->
         <li class="nav-item">
           <a href="add_order.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'add_order.php' ? 'active' : ''; ?>">
           <i class="nav-icon fas fa-box"></i>
             <p>
-              Add order
+              Add Delivery Order
+            </p>
+          </a>
+        </li>
+
+        <!-- Pickup -->
+        <li class="nav-item">
+          <a href="add_order2.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'add_order2.php' ? 'active' : ''; ?>">
+          <i class="nav-icon fas fa-box"></i>
+            <p>
+              Add Pickup Order
             </p>
           </a>
         </li>

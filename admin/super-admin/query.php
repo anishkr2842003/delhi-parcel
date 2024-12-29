@@ -269,7 +269,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'addSeller') {
         }
     }
 
-    
+
     $nameParts = explode(' ', $fullName);
     $loginPassword = $nameParts[0] . '@' . $pinCode;
 

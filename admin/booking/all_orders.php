@@ -85,8 +85,9 @@ if (!isset($_SESSION['booking_email'])) {
                     <tbody>
                       <?php
                       include("../config.php");
+                      // var_dump($_SESSION);
                       $seller_id = $_SESSION['booking_id'];
-                      $sql = "SELECT orders.*, delivery.name AS delivery_boy_name, seller.fullName AS seller_name FROM orders LEFT JOIN delivery ON orders.assign_to = delivery.id LEFT JOIN seller ON orders.seller_id = seller.id WHERE orders.seller_id = 3 ";
+                      $sql = "SELECT orders.*, delivery.name AS delivery_boy_name, seller.fullName AS seller_name FROM orders LEFT JOIN delivery ON orders.assign_to = delivery.id LEFT JOIN seller ON orders.seller_id = seller.id WHERE orders.seller_id = $seller_id";
                       $result = mysqli_query($conn, $sql);
                       $index = 1;
                       while ($row = mysqli_fetch_assoc($result)) {

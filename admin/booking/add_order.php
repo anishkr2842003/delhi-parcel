@@ -12,15 +12,11 @@ if (!isset($_SESSION['seller_email'])) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Seller | Add Order</title>
+  <title>Seller | Add Delivery Order</title>
 
   <?php include("inc/links.php") ?>
 
   <style>
-    /* body {
-      margin-top: 40px;
-    } */
-
     .stepwizard-step p {
       margin-top: 10px;
     }
@@ -48,8 +44,6 @@ if (!isset($_SESSION['seller_email'])) {
       width: 100%;
       height: 1px;
       background-color: #ccc;
-      /* z-order: 0; */
-
     }
 
     .stepwizard-step {
@@ -87,7 +81,6 @@ if (!isset($_SESSION['seller_email'])) {
       background-color: green;
     }
 
-    /* Active button state */
     .distance-btn#active,
     .express-btn#active,
     .standard-btn#active {
@@ -101,7 +94,6 @@ if (!isset($_SESSION['seller_email'])) {
       cursor: not-allowed;
     }
 
-    /* Normal button state */
     .distance-btn {
       background-color: #000;
       color: white;
@@ -149,6 +141,64 @@ if (!isset($_SESSION['seller_email'])) {
     .suggestions div:hover {
       background: #f0f0f0;
     }
+
+    #loader {
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+      display: none;
+    }
+
+    svg {
+      width: 3.25em;
+      transform-origin: center;
+      animation: rotate4 2s linear infinite;
+    }
+
+    circle {
+      fill: none;
+      stroke: hsl(214, 97%, 59%);
+      stroke-width: 5;
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+      stroke-linecap: round;
+      animation: dash4 1.5s ease-in-out infinite;
+    }
+
+    @keyframes rotate4 {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes dash4 {
+      0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+      }
+
+      50% {
+        stroke-dasharray: 90, 200;
+        stroke-dashoffset: -35px;
+      }
+
+      100% {
+        stroke-dashoffset: -125px;
+      }
+    }
   </style>
 
 </head>
@@ -163,17 +213,22 @@ if (!isset($_SESSION['seller_email'])) {
     <?php include("inc/sidebar.php") ?>
     <?php include("../config.php") ?>
 
+    <div id="loader">
+      <svg viewBox="25 25 50 50">
+        <circle r="20" cy="50" cx="50"></circle>
+      </svg>
+    </div>
     <div class="content-wrapper">
       <section class="content-header">
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h1>Add Order</h1>
+              <h1>Add Delivery Order</h1>
             </div>
             <div class="col-sm-6">
               <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-                <li class="breadcrumb-item active">Add Order</li>
+                <li class="breadcrumb-item active">Add Delivery Order</li>
               </ol>
             </div>
           </div>
@@ -189,280 +244,214 @@ if (!isset($_SESSION['seller_email'])) {
                   <h3 class="card-title">Add new order here</h3>
                 </div>
                 <div class="container p-5">
-                  <div class="stepwizard">
-                    <div class="stepwizard-row setup-panel">
-                      <div class="stepwizard-step">
-                        <a href="#step-1" type="button" class="btn btn-primary btn-circle">1</a>
-                        <p>Step 1</p>
-                      </div>
-                      <div class="stepwizard-step">
-                        <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
-                        <p>Step 2</p>
-                      </div>
-                      <div class="stepwizard-step">
-                        <a href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
-                        <p>Step 3</p>
-                      </div>
-                    </div>
-                  </div>
                   <form id="parcelForm">
-                    <!-- Step 1 -->
-                    <div class="row setup-content" id="step-1">
-                      <div class="col-md-12">
-                        <div class="col-md-12">
-                          <h3>Choose Pin code</h3>
-                          <div class="form-group">
-                            <label class="control-label">Pick-up Pincode</label>
-                            <input maxlength="6" type="text" required="required" name="pickupPincode" id="pickupPincode" class="form-control" placeholder="Enter Pick-up Pincode" />
-                            <span id="pickupPincodeMessage"></span>
-                          </div>
-                          <div class="form-group">
-                            <label class="control-label">Delivery Pincode</label>
-                            <input maxlength="6" type="text" required="required" name="deliveryPincode" id="deliveryPincode" class="form-control" placeholder="Enter Delivery Pincode" />
-                            <span id="deliveryPincodeMessage"></span>
-                          </div>
-                          <button class="btn btn-primary nextBtn btn-lg pull-right" type="button" id="bookParcelBtn">Next</button>
-                        </div>
-                      </div>
+                    <div class="form-group">
+                      <input type="hidden" name="service_type" id="service_type" value="">
+                      <input type="hidden" name="service_title" id="service_title" value="">
+                      <input type="hidden" name="seller_id" id="seller_id" value="<?php echo $_SESSION['booking_id'] ?>">
+                      <label class="control-label">Delivery Pincode</label>
+                      <input maxlength="6" type="text" required="required" name="deliveryPincode" id="deliveryPincode" class="form-control" placeholder="Enter Delivery Pincode" />
+                      <span id="deliveryPincodeMessage"></span>
                     </div>
-                    <!-- Step 2 -->
-                    <div class="row setup-content" id="step-2">
-                      <div class="col-md-12">
-                        <div class="col-md-12">
-                          <h3>Choose Service</h3>
-                          <div class="form-group">
-                            <label><strong>Choose Delivery Service</strong></label> <br>
-                            <span id="serviceMessage" style="color: red;"></span>
-                            <div class="delivery">
-                              <div class="radio-group" style="display: flex; flex-direction: row; gap: 10px;">
-                                <div class="radio-item">
-                                  <input type="radio" id="optionSuperExpress" name="options" value="Super Express" onclick="showAdditionalOptions('superExpress')">&nbsp;
-                                  <label for="optionSuperExpress">Super Express</label>
-                                </div>
-                                <div class="radio-item">
-                                  <input type="radio" id="optionExpress" name="options" value="Express" onclick="showAdditionalOptions('express')">&nbsp;
-                                  <label for="optionExpress">Express</label>
-                                </div>
-                                <div class="radio-item">
-                                  <input type="radio" id="optionStandard" name="options" value="Standard" onclick="showAdditionalOptions('standard')">&nbsp;
-                                  <label for="optionStandard">Standard</label>
-                                </div>
-                              </div>
+
+                    <div id="serviceSection" style="display: none;">
+                      <div class="form-group">
+                        <label><strong>Choose Delivery Service</strong></label> <br>
+                        <span id="serviceMessage" style="color: red;"></span>
+                        <div class="delivery">
+                          <div class="radio-group" style="display: flex; flex-direction: row; gap: 10px;">
+                            <div class="radio-item">
+                              <input type="radio" id="optionSuperExpress" name="options" value="Super Express" onclick="showAdditionalOptions('superExpress')">&nbsp;
+                              <label for="optionSuperExpress">Super Express</label>
+                            </div>
+                            <div class="radio-item">
+                              <input type="radio" id="optionExpress" name="options" value="Express" onclick="showAdditionalOptions('express')">&nbsp;
+                              <label for="optionExpress">Express</label>
+                            </div>
+                            <div class="radio-item">
+                              <input type="radio" id="optionStandard" name="options" value="Standard" onclick="showAdditionalOptions('standard')">&nbsp;
+                              <label for="optionStandard">Standard</label>
                             </div>
                           </div>
-
-                          <!-- Express weight options (in kg) -->
-                          <div id="expressWeightOptions" class="item-weight-options" style="display: none;">
-                            <?php
-                            $sql1 = "SELECT * FROM services WHERE service_type = 'Express' && status = 1";
-                            $res1 = mysqli_query($conn, $sql1);
-                            while ($row = mysqli_fetch_assoc($res1)) {
-                            ?>
-                              <div class="radio-item">
-                                <button type="button" class="express-btn" data-service_type="<?php echo $row['service_type'] ?>" data-title="<?php echo $row['title'] ?>" data-price="<?php echo $row['price'] ?>" onclick="get_price(this)"><?php echo $row['title'] ?></button>
-                              </div>
-                            <?php } ?>
-                          </div>
-
-                          <!-- Standard weight options (in kg) -->
-                          <div id="standardWeightOptions" class="item-weight-options" style="display: none;">
-                            <?php
-                            $sql1 = "SELECT * FROM services WHERE service_type = 'Standred' && status = 1";
-                            $res1 = mysqli_query($conn, $sql1);
-                            while ($row = mysqli_fetch_assoc($res1)) {
-                            ?>
-                              <div class="radio-item">
-                                <button type="button" class="standard-btn" data-service_type="<?php echo $row['service_type'] ?>" data-title="<?php echo $row['title'] ?>" data-price="<?php echo $row['price'] ?>" onclick="get_price(this)"><?php echo $row['title'] ?></button>
-                              </div>
-                            <?php } ?>
-                          </div>
                         </div>
+                      </div>
 
-                        <!-- Address input fields for Super Express -->
-                        <div id="addressSection" style="display: none;">
-                          <div class="form-group">
-                            <label for="address1"><strong>Pick-up Address</strong></label><br>
-                            <input type="text" id="address1" class="form-control" placeholder="Enter pick-up address">
-                            <div id="suggestions1" class="suggestions"></div>
+                      <!-- Express weight options (in kg) -->
+                      <div id="expressWeightOptions" class="item-weight-options" style="display: none;">
+                        <?php
+                        $sql1 = "SELECT * FROM services WHERE service_type = 'Express' && status = 1";
+                        $res1 = mysqli_query($conn, $sql1);
+                        while ($row = mysqli_fetch_assoc($res1)) {
+                        ?>
+                          <div class="radio-item">
+                            <button type="button" class="express-btn" data-service_type="<?php echo $row['service_type'] ?>" data-title="<?php echo $row['title'] ?>" data-price="<?php echo $row['price'] ?>" onclick="get_price(this)"><?php echo $row['title'] ?></button>
                           </div>
-                          <div class="form-group">
-                            <label for="address2"><strong>Delivery Address</strong></label><br>
-                            <input type="text" id="address2" class="form-control" placeholder="Enter delivery address">
-                            <div id="suggestions2" class="suggestions"></div>
-                          </div>
-                          <button type="button" onclick="calculateDistance()" style="padding: 10px 20px; border-radius: 10px; background-color: #007BFF; color: white; border: none; cursor: pointer; font-size: 16px; transition: background-color 0.3s;">Calculate Distance</button>
-                          <div id="distance"></div>
-                        </div>
+                        <?php } ?>
+                      </div>
 
+                      <!-- Standard weight options (in kg) -->
+                      <div id="standardWeightOptions" class="item-weight-options" style="display: none;">
+                        <?php
+                        $sql1 = "SELECT * FROM services WHERE service_type = 'Standred' && status = 1";
+                        $res1 = mysqli_query($conn, $sql1);
+                        while ($row = mysqli_fetch_assoc($res1)) {
+                        ?>
+                          <div class="radio-item">
+                            <button type="button" class="standard-btn" data-service_type="<?php echo $row['service_type'] ?>" data-title="<?php echo $row['title'] ?>" data-price="<?php echo $row['price'] ?>" onclick="get_price(this)"><?php echo $row['title'] ?></button>
+                          </div>
+                        <?php } ?>
+                      </div>
+
+                      <!-- Address input fields for Super Express -->
+                      <div id="addressSection" style="display: none;">
                         <div class="form-group">
-                          <label for="estimatePrice"><strong>Estimate Price</strong></label><br>
-                          <input type="text" class="form-control" id="estimatePrice" placeholder="₹ 0" readonly>
+                          <label for="address1"><strong>Pick-up Address</strong></label><br>
+                          <input type="text" id="address1" class="form-control" placeholder="Enter pick-up address">
                         </div>
+                        <div class="form-group">
+                          <label for="address2"><strong>Delivery Address</strong></label><br>
+                          <input type="text" id="address2" class="form-control" placeholder="Enter delivery address">
+                        </div>
+                        <button type="button" onclick="calculateDistance()" style="padding: 10px 20px; border-radius: 10px; background-color: #007BFF; color: white; border: none; cursor: pointer; font-size: 16px; transition: background-color 0.3s;">Calculate Distance</button>
+                        <div id="distance"></div>
+                      </div>
 
-                        <button class="btn btn-primary nextBtn btn-lg pull-right" type="button" id="bookParcelBtn2">Next</button>
+                      <div class="form-group">
+                        <label for="estimatePrice"><strong>Estimate Price</strong></label><br>
+                        <input type="text" class="form-control" id="estimatePrice" placeholder="₹ 0" readonly>
                       </div>
                     </div>
 
-                    <!-- Step 3 -->
-                    <?php
-                    $sellerId =  $_SESSION['seller_id'];
+                    <div id="receiverSection" style="display: none;">
+                      <div class="container">
 
-                    $sql = "SELECT * FROM seller WHERE id = $sellerId";
-                    $result = mysqli_query($conn, $sql);
-
-                    $row = mysqli_fetch_assoc($result);
-                    // var_dump($row);
-                    // echo $row["fullName"];
-
-                    ?>
-                    <div class="row setup-content pb-5" id="step-3">
-                      <div class="col-md-12">
-                        <div class="col-md-12">
-                          <!-- <h3>Step 3</h3> -->
-                          <div class="container">
-                            <h1 style="text-align:center;text-decoration: underline;">Parcel Details</h1>
-
-                            <div class="row" style="justify-content: center;">
-                              <div class="col-12 col-lg-5 ">
-                                <h2>Sender Details</h2>
-                                <div class="row">
-                                  <label for="name">Sender Name</label>
-                                  <input type="hidden" name="service_type" id="service_type" value="4087">
-                                  <input type="hidden" name="title" id="title" value="DP19205">
-                                  <input type="text" id="name" name="sender_name" class="form-control mb-3" placeholder="Enter Sender Name" value="<?php echo $row['fullName'] ?>" required>
-                                  <label for="number">Sender Contact Number</label>
-                                  <input type="text" id="number" name="sender_number" pattern="[6789][0-9]{9}" class="form-control mb-3" placeholder="Enter Sender Contact Number" value="<?php echo $row['phone'] ?>" required>
-                                  <label for="email">Sender Email</label>
-                                  <input type="email" id="email" name="sender_email" class="form-control mb-3" placeholder="Enter Sender Email" value="<?php echo $row['email'] ?>" required>
-                                  <label for="address">Sender Full Address</label>
-                                  <input type="text" id="address" name="sender_address" class="form-control mb-3" placeholder="Enter Sender Address" value="<?php echo $row['fullAddress'] ?>" required>
-                                  <label for="senderPincode">Sender Pincode</label>
-                                  <input type="text" id="senderPincode" name="senderPincode" class="form-control mb-3" placeholder="Enter Sender Pincode" value="<?php echo $row['pincode'] ?>" required readonly>
-                                </div>
-                              </div>
-
-                              <div class="col-12 col-lg-5" style="margin-left: 10px;">
-                                <h2 style="text-align:left">Receiver Details</h2>
-                                <div class="row">
-                                  <label for="namer">Receiver Name</label>
-                                  <input type="text" id="namer" name="receiver_name" class="form-control mb-3" placeholder="Enter Receiver Name" required>
-                                  <label for="numberr">Receiver Contact Number</label>
-                                  <input type="text" id="numberr" name="receiver_number" pattern="[6789][0-9]{9}" class="form-control mb-3" placeholder="Enter Receiver Contact Number" required>
-                                  <label for="emailr">Receiver Email</label>
-                                  <input type="email" id="emailr" name="receiver_email" class="form-control mb-3" placeholder="Enter Receiver Email" required>
-                                  <label for="addressr">Receiver Full Address</label>
-                                  <input type="text" id="addressr" name="receiver_address" class="form-control mb-3" placeholder="Enter Receiver Address" required>
-                                  <label for="receiverPincode">Receiver Pincode</label>
-                                  <input type="text" id="receiverPincode" name="receiverPincode" class="form-control mb-3" placeholder="Enter Receiver Pincode" required readonly>
-                                </div>
-                              </div>
-                            </div>
-
-                            <!-- Payment options and total cost -->
+                        <div class="row">
+                          <div class="col-md-12" style="margin-left: 10px;">
+                            <h2 style="text-align:left">Receiver Details</h2>
                             <div class="row">
-                              <div class="col-12 col-lg-8 d-flex ">
-                                <div>
-                                  <input class="m-1 me-1" type="radio" id="cod" name="payment_methods" value="cod" onchange="updatePrice()" required>
-                                </div>
-                                <div>
-                                  <label for="cod">Cash On Delivery <em class="text-success text-center justify-content-center " style="font-size: 12px;">(COD charges ₹ 30 or 2 % which ever is higher)</em></label>
-                                </div>
-                              </div>
-
-                              <div class="col-12 col-lg-4 d-flex">
-                                <div>
-                                  <input class="m-1" type="radio" id="online" name="payment_methods" value="online" onchange="updatePrice()" required>
-                                </div>
-                                <div>
-                                  <label for="online">Prepaid Order</label>
-                                </div>
-                              </div>
+                              <label for="namer">Receiver Name</label>
+                              <input type="text" id="namer" name="receiver_name" class="form-control mb-3" placeholder="Enter Receiver Name" required>
+                              <label for="numberr">Receiver Contact Number</label>
+                              <input type="text" id="numberr" name="receiver_number" pattern="[6789][0-9]{9}" class="form-control mb-3" placeholder="Enter Receiver Contact Number" required>
+                              <label for="emailr">Receiver Email</label>
+                              <input type="email" id="emailr" name="receiver_email" class="form-control mb-3" placeholder="Enter Receiver Email" required>
+                              <label for="addressr">Receiver Full Address</label>
+                              <input type="text" id="addressr" name="receiver_address" class="form-control mb-3" placeholder="Enter Receiver Address" required>
+                              <label for="receiverPincode">Receiver Pincode</label>
+                              <input type="text" id="receiverPincode" name="receiverPincode" class="form-control mb-3" placeholder="Enter Receiver Pincode" required readonly>
                             </div>
+                          </div>
+                        </div>
 
-                            <div class="row ">
-                              <div class="col-12 d-flex">
-                                <div>
-                                  <input class="m-1" type="checkbox" name="insurance" id="insurance" value="" onchange="updatePrice()">
-                                </div>
-                                <div>
-                                  <label for="insurance">Do you want to insurance your order? <em class="text-success" style="font-size: 12px;">(Insurance charges 50 or 1 % which ever is higher)</em></label>
-                                </div>
-                              </div>
+                        <!-- Payment options and total cost -->
+                        <div class="row">
+                          <div class="col-12 col-lg-8 d-flex ">
+                            <div>
+                              <input class="m-1 me-1" type="radio" id="cod" name="payment_methods" value="cod" onchange="updatePrice()" required>
                             </div>
+                            <div>
+                              <label for="cod">Cash On Delivery <em class="text-success text-center justify-content-center " style="font-size: 12px;">(COD charges ₹ 30 or 2 % which ever is higher)</em></label>
+                            </div>
+                          </div>
 
-                            <div class="row w-100">
-                              <div class="col-12">
-                                <!-- Total cost -->
-                                <!-- <input type="hidden" name="amount" value="70"> -->
-                                <input type="hidden" id="amount" name="price" value="0">
-                                <h4>Total Cost - ₹ <span id="amounts">0</span></h4>
-                              </div>
+                          <div class="col-12 col-lg-4 d-flex">
+                            <div>
+                              <input class="m-1" type="radio" id="online" name="payment_methods" value="online" onchange="updatePrice()" required>
                             </div>
-                            <!-- Submit button -->
-                            <!-- <button data-label="Register" class="rainbow-hover mb-3" type="submit">
-                          <span class="sp">Submit</span>
-                        </button> -->
-                            <button class="btn btn-primary nextBtn btn-lg pull-right" type="submit" id="bookParcelBtn3">Submit Order</button>
+                            <div>
+                              <label for="online">Prepaid Order</label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row ">
+                          <div class="col-12 d-flex">
+                            <div>
+                              <input class="m-1" type="checkbox" name="insurance" id="insurance" value="" onchange="updatePrice()">
+                            </div>
+                            <div>
+                              <label for="insurance">Do you want to insurance your order? <em class="text-success" style="font-size: 12px;">(Insurance charges 50 or 1 % which ever is higher)</em></label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row w-100">
+                          <div class="col-12">
+                            <!-- Total cost -->
+                            <input type="hidden" id="amount" name="price" value="0">
+                            <h4>Total Cost - ₹ <span id="amounts">0</span></h4>
+                          </div>
+                        </div>
+                        <!-- Submit button -->
+                        <button class="btn btn-primary nextBtn btn-lg pull-right" type="submit" id="bookParcelBtn3">Submit Order</button>
+                      </div>
+                    </div>
                   </form>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
     </div>
-  </div>
-  </div>
-  </section>
   </div>
   <?php include("inc/footer.php") ?>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAx_5V0k3AP2ZxGMNZ7TSy0LnhwChWuDoE&libraries=places"></script>
+
   <script>
     $(document).ready(function() {
+      $('#deliveryPincode').on('change', function() {
+        var pincode = $(this).val();
+        var messageElement = $(this).next('span');
 
-      var navListItems = $('div.setup-panel div a'),
-        allWells = $('.setup-content'),
-        allNextBtn = $('.nextBtn');
+        // Clear previous message
+        messageElement.text('');
 
-      allWells.hide();
-
-      navListItems.click(function(e) {
-        e.preventDefault();
-        var $target = $($(this).attr('href')),
-          $item = $(this);
-
-        if (!$item.hasClass('disabled')) {
-          navListItems.removeClass('btn-primary').addClass('btn-default');
-          $item.addClass('btn-primary');
-          allWells.hide();
-          $target.show();
-          $target.find('input:eq(0)').focus();
-        }
-      });
-
-      allNextBtn.click(function() {
-        var curStep = $(this).closest(".setup-content"),
-          curStepBtn = curStep.attr("id"),
-          nextStepWizard = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
-          curInputs = curStep.find("input[type='text'],input[type='url']"),
-          isValid = true;
-
-        $(".form-group").removeClass("has-error");
-        for (var i = 0; i < curInputs.length; i++) {
-          if (!curInputs[i].validity.valid) {
-            isValid = false;
-            $(curInputs[i]).closest(".form-group").addClass("has-error");
+        // Perform AJAX request to check pincode
+        $.ajax({
+          url: '../../check_pincode.php',
+          method: 'POST',
+          data: {
+            pincode: pincode
+          },
+          success: function(response) {
+            var res = JSON.parse(response)
+            console.log(res)
+            if (res.status == 'not_found') {
+              messageElement.text('This Pincode is not available.');
+              messageElement.css('color', 'red');
+            } else {
+              messageElement.text('This Pincode is available.'); // Clear message if pincode is found
+              messageElement.css('color', 'green');
+              $('#serviceSection').show();
+            }
+          },
+          error: function() {
+            messageElement.text('An error occurred while checking the pincode.');
           }
-        }
-
-        if (isValid)
-          nextStepWizard.removeAttr('disabled').trigger('click');
+        });
       });
 
-      $('div.setup-panel div a.btn-primary').trigger('click');
+      // Update the receiver pincode based on the delivery pincode
+      $('#deliveryPincode').on('input', function() {
+        var deliveryPincode = $(this).val();
+        $('#receiverPincode').val(deliveryPincode);
+      });
+
+      $('#estimatePrice').on('change', function() {
+        var estimatePrice = $(this).val();
+        if (estimatePrice > 0) {
+          $('#receiverSection').show();
+        }
+      });
+
+      // Initialize the total cost with the estimated price
+      updateTotalCost();
     });
 
-    //----------------------------------------------------------------------------------//	
+    //----------------------------------------------------------------------------------//
     //                               calculate Price Based on distance
     //----------------------------------------------------------------------------------//
     function calculatePrice(distance) {
@@ -476,9 +465,12 @@ if (!isset($_SESSION['seller_email'])) {
       localStorage.setItem('serviceName', 'Super-Express');
       localStorage.setItem('title', distance + ' km');
       localStorage.setItem('price', price);
+
+      // Update the total cost
+      updateTotalCost();
     }
 
-    //----------------------------------------------------------------------------------//	
+    //----------------------------------------------------------------------------------//
     //                               Show Additional Options
     //----------------------------------------------------------------------------------//
     function showAdditionalOptions(option) {
@@ -486,26 +478,21 @@ if (!isset($_SESSION['seller_email'])) {
       document.getElementById('estimatePrice').value = "₹ 0";
 
       // Hide all weight/distance options by default
-      // document.getElementById('superExpressDistanceOptions').style.display = 'none';
       document.getElementById('expressWeightOptions').style.display = 'none';
       document.getElementById('standardWeightOptions').style.display = 'none';
       document.getElementById('addressSection').style.display = 'none';
 
       // Show distance options for Super Express and weight options for others
       if (option === 'superExpress') {
-        // document.getElementById('superExpressDistanceOptions').style.display = 'flex';
         document.getElementById('addressSection').style.display = 'block';
       } else if (option === 'express') {
         document.getElementById('expressWeightOptions').style.display = 'flex';
       } else if (option === 'standard') {
         document.getElementById('standardWeightOptions').style.display = 'flex';
       }
-
-      // Show the weight/distance section
-      // document.getElementById('weightSection').style.display = 'block';
     }
 
-    //----------------------------------------------------------------------------------//	
+    //----------------------------------------------------------------------------------//
     //                               Get price
     //----------------------------------------------------------------------------------//
     function get_price(button) {
@@ -522,160 +509,54 @@ if (!isset($_SESSION['seller_email'])) {
       localStorage.setItem('title', title);
       localStorage.setItem('price', price);
 
+      // Set the service type and title in the hidden input fields
+      $('#service_type').val(serviceName);
+      $('#service_title').val(title);
+
       if (price > 0) {
-        $('#bookParcelBtn2').prop('disabled', false);
-      } else {
-        $('#bookParcelBtn2').prop('disabled', true);
+        $('#receiverSection').show();
       }
+
+      // Update the total cost
+      updateTotalCost();
     }
 
-    // fetching pincode found or not
-    $('#pickupPincode, #deliveryPincode').on('change', function() {
-      var pincode = $(this).val();
-      var messageElement = $(this).next('span');
-      var bookParcelBtn = $('#bookParcelBtn');
+    //----------------------------------------------------------------------------------//
+    //                               Google maps Autocomplete                           
+    //----------------------------------------------------------------------------------//
 
-      // Clear previous message
-      messageElement.text('');
+    function initializeAutocomplete() {
+      const address1 = document.getElementById('address1');
+      const address2 = document.getElementById('address2');
 
-      // Perform AJAX request to check pincode
-      $.ajax({
-        url: '../../check_pincode.php',
-        method: 'POST',
-        data: {
-          pincode: pincode
-        },
-        success: function(response) {
-          var res = JSON.parse(response)
-          console.log(res)
-          if (res.status == 'not_found') {
-            messageElement.text('This Pincode is not available.');
-            messageElement.css('color', 'red');
-            bookParcelBtn.prop('disabled', true);
-          } else {
-            messageElement.text('This Pincode is available.'); // Clear message if pincode is found
-            messageElement.css('color', 'green');
-            bookParcelBtn.prop('disabled', false); // Enable the button
-          }
-        },
-        error: function() {
-          messageElement.text('An error occurred while checking the pincode.');
-          bookParcelBtn.prop('disabled', true);
+      const autocomplete1 = new google.maps.places.Autocomplete(address1);
+      const autocomplete2 = new google.maps.places.Autocomplete(address2);
+
+      autocomplete1.addListener('place_changed', function() {
+        const place = autocomplete1.getPlace();
+        if (place.geometry) {
+          address1.dataset.lat = place.geometry.location.lat();
+          address1.dataset.lon = place.geometry.location.lng();
         }
       });
-    });
 
-    // pincode validation
-    $('#bookParcelBtn').on('click', function(event) {
-      var pickupPincode = $('#pickupPincode').val();
-      var deliveryPincode = $('#deliveryPincode').val();
-      var messageElement = $('#pickupPincodeMessage');
-      var messageElement2 = $('#deliveryPincodeMessage');
-      var bookParcelBtn = $('#bookParcelBtn');
+      autocomplete2.addListener('place_changed', function() {
+        const place = autocomplete2.getPlace();
+        if (place.geometry) {
+          address2.dataset.lat = place.geometry.location.lat();
+          address2.dataset.lon = place.geometry.location.lng();
+        }
+      });
+    }
 
-      messageElement.text('');
-
-      // Validate pincodes
-      if (!pickupPincode) {
-        messageElement.text('Pincode is required');
-        messageElement.css('color', 'red');
-        bookParcelBtn.prop('disabled', true);
-        return;
-      }
-      if (!deliveryPincode) {
-        messageElement2.text('Pincode is required');
-        messageElement.css('color', 'red');
-        bookParcelBtn.prop('disabled', true);
-        return;
-      }
-
-      localStorage.setItem('pickupPincode', pickupPincode);
-      localStorage.setItem('deliveryPincode', deliveryPincode);
-    })
-
-    // service validation
-    $('#estimatePrice').val() == 0 ? $('#bookParcelBtn2').prop('disabled', true) : $('#bookParcelBtn2').prop('disabled', false)
-    var bookParcelBtn2 = $('#bookParcelBtn2');
-
-    $('#bookParcelBtn2').on('click', function(event) {
-
-      var service = $('input[name="options"]:checked').val();
-      var serviceMessage = $('#serviceMessage');
-      var estimatePrice = $('#estimatePrice').val();
-
-      console.log(service)
-      // Validate service selection
-      if (!service) {
-        serviceMessage.text('Please choose a delivery service');
-        // bookParcelBtn2.prop('disabled', true);
-        return;
-      }
-
-      if (!estimatePrice) {
-        serviceMessage.text('Please choose a delivery service');
-        bookParcelBtn2.prop('disabled', true);
-        return;
-      }
-      bookParcelBtn2.prop('disabled', false);
-      localStorage.setItem('service', service);
-
-      // Redirect to bookparcelform.php
-      // window.location.href = 'bookparcelform.php';
-    });
-
-    // $('#estimatePrice').on('input', function() {
-    //   var estimatePrice = $(this).val();
-    //   if (estimatePrice != 0) {
-    //     $('#bookParcelBtn2').prop('disabled', false);
-    //   } else {
-    //     $('#bookParcelBtn2').prop('disabled', true);
-    //   }
-    // });
-
-
-    //----------------------------------------------------------------------------------//	
-    //                               Autocomplete address
-    //----------------------------------------------------------------------------------//
     document.addEventListener('DOMContentLoaded', function() {
-      function initializeAutocomplete(inputField, suggestionsDiv) {
-        inputField.addEventListener('input', function() {
-          const query = inputField.value;
-          if (query.length < 3) {
-            suggestionsDiv.innerHTML = '';
-            return;
-          }
-
-          fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${query}&filter=countrycode:in&format=json&apiKey=9da23fcd793b4acfba8f7f0100e20eea`)
-            .then(response => response.json())
-            .then(data => {
-              suggestionsDiv.innerHTML = '';
-              if (data.results && Array.isArray(data.results)) {
-                data.results.forEach(item => {
-                  const suggestion = document.createElement('div');
-                  suggestion.textContent = `${item.formatted} : ${item.plus_code_short}`;
-                  suggestion.addEventListener('click', function() {
-                    inputField.value = item.formatted;
-                    inputField.dataset.lat = item.lat;
-                    inputField.dataset.lon = item.lon;
-                    suggestionsDiv.innerHTML = '';
-                  });
-                  suggestionsDiv.appendChild(suggestion);
-                });
-              } else {
-                console.error('No suggestions found or invalid response format.');
-              }
-            })
-            .catch(error => console.error('Error fetching suggestions:', error));
-        });
-      }
-
-      initializeAutocomplete(document.getElementById('address1'), document.getElementById('suggestions1'));
-      initializeAutocomplete(document.getElementById('address2'), document.getElementById('suggestions2'));
+      initializeAutocomplete();
     });
 
-    //----------------------------------------------------------------------------------//	
-    //                               Calculate Distance
     //----------------------------------------------------------------------------------//
+    //                               Google maps Distance Calculation                          
+    //----------------------------------------------------------------------------------//
+
     function calculateDistance() {
       const address1 = document.getElementById('address1');
       const address2 = document.getElementById('address2');
@@ -685,36 +566,63 @@ if (!isset($_SESSION['seller_email'])) {
       const lon2 = address2.dataset.lon;
 
       if (lat1 && lon1 && lat2 && lon2) {
-        const waypoints = `${lat1},${lon1}|${lat2},${lon2}`;
-        const mode = 'drive';
-        const apiKey = '9da23fcd793b4acfba8f7f0100e20eea';
+        const origin = `${lat1},${lon1}`;
+        const destination = `${lat2},${lon2}`;
+        const proxyUrl = `proxy.php?origin=${origin}&destination=${destination}`;
 
-        fetch(`get_distance.php?waypoints=${waypoints}&mode=${mode}&apiKey=${apiKey}`)
+        document.getElementById('loader').style.display = 'flex';
+
+        fetch(proxyUrl)
           .then(response => response.json())
           .then(data => {
-            if (data.features && data.features.length > 0) {
-              const distance = data.features[0].properties.distance;
-              const aDistance = Math.ceil((distance / 1000).toFixed(2));
-              console.log(aDistance)
-              calculatePrice(aDistance);
-              document.getElementById('distance').textContent = 'Distance: ' + (distance / 1000).toFixed(2) + ' km';
+            var distance = data.routes[0].legs[0].distance.text;
+            console.log(data.routes[0])
+            if (data) {
+              document.getElementById('distance').textContent = 'Distance: ' + distance;
+
+              const distanceNumber = parseFloat(distance.replace(' km', '').replace(',', '.'));
+              const approxDis = Math.ceil(distanceNumber)
+              document.getElementById('distance').textContent = 'Distance Approx: ' + approxDis + ' km';
+              let price = 0;
+              if (approxDis <= 3) {
+                price = 50;
+              } else {
+                price = 50 + (approxDis - 3) * 5;
+              }
+
+              // Update the estimated price input field
+              document.getElementById('estimatePrice').value = "₹ " + price;
+              localStorage.setItem('title', "Super Express");
+              localStorage.setItem('price', price);
+
+              // Set the service type and title in the hidden input fields
+              $('#service_type').val('Super Express');
+              $('#service_title').val(approxDis + ' km');
+
+              if (price > 0) {
+                $('#receiverSection').show();
+              }
+
+              // Update the total cost
+              updateTotalCost();
             } else {
               document.getElementById('distance').textContent = 'No route found.';
             }
+            document.getElementById('loader').style.display = 'none';
           })
           .catch(error => {
             document.getElementById('distance').textContent = 'Error calculating distance. Please try again.';
             console.error('Error calculating distance:', error);
+            document.getElementById('loader').style.display = 'none';
           });
       } else {
         document.getElementById('distance').textContent = 'Please select valid addresses from the suggestions.';
       }
     }
-  </script>
 
-  <script>
+    //-------------------------------- Update Price -----------------------------------//
+
     function updatePrice() {
-      // console.log("hello")
       var paymentMethod = document.querySelector('input[name="payment_methods"]:checked');
       var insuranceChecked = document.getElementById('insurance').checked;
       var price = parseFloat(localStorage.getItem('price'));
@@ -734,49 +642,49 @@ if (!isset($_SESSION['seller_email'])) {
       document.getElementById('amounts').textContent = totalPrice;
     }
 
-    $('#bookParcelBtn2').on('click', function() {
-      // Retrieve data from localStorage
-      var pickupPincode = localStorage.getItem('pickupPincode');
-      var deliveryPincode = localStorage.getItem('deliveryPincode');
-      var serviceName = localStorage.getItem('serviceName');
-      var title = localStorage.getItem('title');
-      var price = parseFloat(localStorage.getItem('set_price'));
-      // console.log(price)
-      console.log("hello");
+    //-------------------------------- Update Total Cost -----------------------------------//
 
-      // Fill in the form fields
-      document.getElementById('senderPincode').value = pickupPincode;
-      document.getElementById('receiverPincode').value = deliveryPincode;
-      document.getElementById('service_type').value = serviceName;
-      document.getElementById('title').value = title;
-      document.getElementById('amount').value = price;
-      document.getElementById('amounts').textContent = price;
+    function updateTotalCost() {
+      var price = parseFloat(localStorage.getItem('price')) || 0;
+      var totalPrice = price;
 
-      // Initial price update
-      updatePrice();
+      var paymentMethod = document.querySelector('input[name="payment_methods"]:checked');
+      if (paymentMethod && paymentMethod.value === 'cod') {
+        var codCharges = Math.max(30, price * 0.02);
+        totalPrice += codCharges;
+      }
 
-      // Handle form submission
-      $('#parcelForm').on('submit', function(event) {
-        event.preventDefault();
+      var insuranceChecked = document.getElementById('insurance').checked;
+      if (insuranceChecked) {
+        var insuranceCharges = Math.max(50, price * 0.01);
+        totalPrice += insuranceCharges;
+      }
 
-        var formData = $(this).serialize();
+      document.getElementById('amount').value = totalPrice;
+      document.getElementById('amounts').textContent = totalPrice;
+    }
 
-        $.ajax({
-          url: 'save_order.php',
-          method: 'POST',
-          data: formData,
-          success: function(response) {
-            console.log(response)
-            alert('Order saved successfully!');
-            window.location.reload();
-          },
-          error: function() {
-            alert('Error saving the order. Please try again.');
-          }
-        });
+    $('#parcelForm').on('submit', function(event) {
+      event.preventDefault();
+
+      var formData = $(this).serialize();
+
+      $.ajax({
+        url: 'save_order.php',
+        method: 'POST',
+        data: formData,
+        success: function(response) {
+          console.log(response)
+          alert('Order saved successfully!');
+          window.location.reload();
+        },
+        error: function() {
+          alert('Error saving the order. Please try again.');
+        }
       });
     });
   </script>
+
 
   <!-- ./wrapper -->
 

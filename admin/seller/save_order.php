@@ -46,7 +46,7 @@ if ($resultLastOrderId && mysqli_num_rows($resultLastOrderId) > 0) {
 $newOrderId = $lastOrderId + 1;
 $order_id = "DP" . $newOrderId;
 
-$seller_id = $_SESSION['seller_id'];
+// $seller_id = $_SESSION['seller_id'];
 
 $sql = "INSERT INTO orders (order_id, seller_id, sender_name, sender_number, sender_email, sender_address, sender_pincode, receiver_name, receiver_number, receiver_email, receiver_address, receiver_pincode, service_type, service_title, insurance, price, payment_mode, parcel_type)
         VALUES ('$order_id', $seller_id, '$sender_name', '$sender_number', '$sender_email', '$sender_address', '$senderPincode', '$receiver_name', '$receiver_number', '$receiver_email', '$receiver_address', '$receiverPincode', '$service_type', '$service_title', '$insurance', $price, '$payment_mode', '$parcel_type')";
