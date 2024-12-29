@@ -200,7 +200,6 @@ if (!isset($_SESSION['admin_email'])) {
         function printDiv(divName) {
 
             var printContents = document.getElementById(divName).innerHTML;
-
             var originalContents = document.body.innerHTML;
 
             document.body.innerHTML = printContents;
