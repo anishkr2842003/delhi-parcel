@@ -2,7 +2,7 @@
 if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
-if (!isset($_SESSION['admin_email'])) {
+if (!isset($_SESSION['seller_email'])) {
   header('Location: index.php');
 }
 ?>

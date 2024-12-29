@@ -2,17 +2,9 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-if (!isset($_GET['ordId'])) {
-    header("Location: all_orders.php");
+if (!isset($_SESSION['admin_email'])) {
+    header('Location: index.php');
 }
-include("../config.php");
-$id = $_GET['ordId'];
-$sql = "SELECT o.*, s.seller_logo FROM orders o JOIN seller s ON o.seller_id = s.id WHERE o.order_id = '$id'";
-$res = mysqli_query($conn, $sql);
-$row = mysqli_fetch_assoc($res);
-
-// var_dump($row);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -129,11 +121,12 @@ $row = mysqli_fetch_assoc($res);
 
 <body>
     <?php
+    include("../config.php");
     if (!isset($_GET['ordId'])) {
         header("Location: all_orders.php");
     }
     $id = $_GET['ordId'];
-    $sql = "SELECT o.*, s.seller_logo FROM orders o JOIN seller s ON o.seller_id = s.id WHERE o.order_id = '$id'";
+    $sql = "SELECT * FROM orders WHERE order_id = '$id'";
     $res = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($res);
 
@@ -154,16 +147,11 @@ $row = mysqli_fetch_assoc($res);
                         <input type="text" value="<?php echo $row['order_id'] ?>" id="ord_id" hidden>
                     </tr>
                     <tr>
-                        <td colspan="2">
+                        <td colspan="3">
                             <strong>Receiver:</strong> <?php echo $row['receiver_name'] ?>, <?php echo $row['receiver_number'] ?> <br>
                             <?php echo $row['receiver_name'] ?> <br>
                             <strong>Address:</strong><?php echo $row['receiver_address'] ?> <br>
                             <strong>PIN:</strong> <?php echo $row['receiver_pincode'] ?>
-                        </td>
-                        <td class="right">
-                            <?php if (!empty($row['seller_logo'])): ?>
-                                <img src="<?php echo $row['seller_logo'] ?>" alt="" height="70px">
-                            <?php endif; ?>
                         </td>
                     </tr>
                     <tr>
@@ -171,7 +159,7 @@ $row = mysqli_fetch_assoc($res);
                             <strong>Sender:</strong> <?php echo $row['sender_name'] ?>, <?php echo $row['sender_number'] ?><br>
                             <?php echo $row['sender_name'] ?> <br>
                             <strong>Address:</strong> <?php echo $row['sender_address'] ?> <br>
-                            <strong>PIN:</strong> <?php echo $row['sender_pincode'] ?>
+                            <strong>PIN:</strong> <?php echo $row['receiver_pincode'] ?>
                         </td>
                         <td class="right">
                             <strong>Date:</strong> <?php echo strtolower((new DateTime($row['created_at']))->format('d-M-Y')); ?>
@@ -198,9 +186,9 @@ $row = mysqli_fetch_assoc($res);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         // Generate QR Code
-        var orderId = document.querySelector('#ord_id').value;
+        var ordderId = document.querySelector('#ord_id').value;
         new QRCode(document.getElementById("qrcode"), {
-            text: `https://delhiparcel.com/track.php?ordId=${orderId}`,
+            text: `https://delhiparcel.com/track.php?ordId=${ordderId}`,
             width: 150,
             height: 150
         });

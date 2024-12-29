@@ -126,7 +126,7 @@ if (!isset($_SESSION['admin_email'])) {
         header("Location: all_orders.php");
     }
     $id = $_GET['ordId'];
-    $sql = "SELECT o.*, s.seller_logo FROM orders o JOIN sellers s ON o.seller_id = s.id WHERE o.order_id = '$id'";
+    $sql = "SELECT * FROM orders WHERE order_id = '$id'";
     $res = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($res);
 
@@ -147,14 +147,11 @@ if (!isset($_SESSION['admin_email'])) {
                         <input type="text" value="<?php echo $row['order_id'] ?>" id="ord_id" hidden>
                     </tr>
                     <tr>
-                        <td colspan="2">
+                        <td colspan="3">
                             <strong>Receiver:</strong> <?php echo $row['receiver_name'] ?>, <?php echo $row['receiver_number'] ?> <br>
                             <?php echo $row['receiver_name'] ?> <br>
                             <strong>Address:</strong><?php echo $row['receiver_address'] ?> <br>
                             <strong>PIN:</strong> <?php echo $row['receiver_pincode'] ?>
-                        </td>
-                        <td class="right">
-                        <img src="<?php echo $row['seller_logo']?>" alt="" height="70px">
                         </td>
                     </tr>
                     <tr>
@@ -200,6 +197,7 @@ if (!isset($_SESSION['admin_email'])) {
         function printDiv(divName) {
 
             var printContents = document.getElementById(divName).innerHTML;
+
             var originalContents = document.body.innerHTML;
 
             document.body.innerHTML = printContents;
