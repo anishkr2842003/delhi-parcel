@@ -58,11 +58,13 @@ if (!isset($_SESSION['booking_email'])) {
                 </div> -->
                 <!-- /.card-header -->
                 <div class="card-body">
+                <button type="button" class="btn btn-primary" id="downloadLabelsBtn">Download Selected Labels</button>
                   <table id="example1" class="table table-bordered table-striped">
                     <thead>
                       <tr>
                         <th>Sr No.</th>
                         <th>Order&nbsp;id</th>
+                        <th><input type="checkbox" name="" id=""></th>
                         <th>Invoice</th>
                         <th>Label</th>
                         <th>Seller</th>
@@ -106,6 +108,7 @@ if (!isset($_SESSION['booking_email'])) {
                         <tr>
                           <td><?php echo $index; ?></td>
                           <td><?php echo $row['order_id']; ?></td>
+                          <td><input type="checkbox" class="order-checkbox" value="<?php echo $row['order_id']; ?>"></td>
                           <td><a href="invoice.php?ordId=<?php echo $row['order_id']; ?>">Invoice</a></td>
                           <td><a href="label.php?ordId=<?php echo $row['order_id']; ?>">label</a></td>
                           <td><?php echo $row['seller_id'] == 0 ? 'customer' : $row['seller_name']; ?></td>
@@ -432,6 +435,39 @@ if (!isset($_SESSION['booking_email'])) {
 
 
       // initTable();
+    });
+  </script>
+
+<script>
+    $(document).ready(function() {
+      $('#downloadLabelsBtn').on('click', function() {
+        var selectedOrders = [];
+        $('.order-checkbox:checked').each(function() {
+          selectedOrders.push($(this).val());
+        });
+
+        if (selectedOrders.length === 0) {
+          alert('Please select at least one order.');
+          return;
+        }
+
+        // Send the selected order IDs via AJAX
+        $.ajax({
+          url: 'generate_labels.php',
+          type: 'POST',
+          data: {
+            orderIds: selectedOrders
+          },
+          success: function(response) {
+            // Handle the response (e.g., trigger the download)
+            window.location.href = 'download_labels.php?file=' + response;
+          },
+          error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('An error occurred while generating the labels.');
+          }
+        });
+      });
     });
   </script>
 
